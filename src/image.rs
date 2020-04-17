@@ -15,13 +15,13 @@ impl Image for PPMImage {
     {
         let mut pixel_array = vec![format!("P3\n{} {}\n255", windows.width, windows.height)];
         for i in 0..windows.size() {
-            let Color {r, g, b, a} = Color::unpack(image[i]);
-            println!("r: {}, g: {}, b: {}, a: {}", r, g, b, a);
+            let Color {r, g, b, ..} = Color::unpack(image[i]);
+            //println!("r: {}, g: {}, b: {}, a: {}", r, g, b, a);
             pixel_array.push(format!("{} {} {}", r, g, b));
         }
         let mut file = File::create(filename).unwrap();
         let output = pixel_array.join("\n");
-        file.write_all(output.as_bytes());
+        file.write_all(output.as_bytes()).unwrap();
     }
 }
 
