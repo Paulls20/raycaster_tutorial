@@ -1,10 +1,18 @@
 use crate::settings::{Windows, Map};
 use crate::utility::Color;
 use std::ops::Index;
+use crate::player::Player;
 
 pub struct FrameBuffer {
     pub buffer: Vec<u32>,
     windows: Windows,
+}
+
+struct Rectangle {
+    x: usize,
+    y: usize,
+    w: usize,
+    h: usize
 }
 
 impl FrameBuffer {
@@ -30,17 +38,17 @@ impl FrameBuffer {
         }
     }
 
-    fn draw_rectangle(&mut self, w: usize, h: usize, x: usize, y: usize, color: u32) {
-        for j in 0..w {
-            for i in 0..h {
-                let cx = x + i;
-                let cy = y + j;
+    fn draw_rectangle(&mut self, rectangle: Rectangle, color: u32) {
+        for j in 0..rectangle.w {
+            for i in 0..rectangle.h {
+                let cx = rectangle.x + i;
+                let cy = rectangle.y + j;
                 self.buffer[cx + cy * self.windows.width] = color
             }
         }
     }
 
-    pub fn draw_map(&mut self, map: Map) {
+    pub fn draw_map(&mut self, map: &Map) {
         let rect_w = self.windows.width / map.width;
         let rect_h = self.windows.height / map.height;
         for j in 0..map.height {
@@ -50,9 +58,17 @@ impl FrameBuffer {
                 }
                 let rect_x = i * rect_w;
                 let rect_y = j * rect_h;
-                self.draw_rectangle(rect_w, rect_h, rect_x, rect_y, Color::new(0, 255, 255).pack(255))
+                let r = Rectangle { x: rect_x, y: rect_y, w: rect_w, h: rect_h };
+                self.draw_rectangle(r, Color::new(0, 255, 255).pack(255))
             }
         }
+    }
+
+    pub fn draw_player(&mut self, map: &Map, player: &Player) {
+        let rect_w = self.windows.width / map.width;
+        let rect_h = self.windows.height / map.height;
+        let r = Rectangle {x: player.x as usize * rect_w, y: player.y as usize *rect_h, w: 5, h: 5};
+        self.draw_rectangle(r, Color::new(255, 255, 255).pack(255));
     }
 }
 
