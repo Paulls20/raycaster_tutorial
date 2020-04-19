@@ -17,7 +17,7 @@ fn main() {
     fb.fill_gradient();
     fb.draw_map();
 
-    let p = Player::new(3.456, 2.345);
+    let p = Player::new(3.456, 2.345, 1.523);
     fb.draw_player(&p);
 
     PPMImage::draw_image("test.ppm", &fb, &w);

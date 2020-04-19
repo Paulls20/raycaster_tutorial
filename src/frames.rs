@@ -8,14 +8,14 @@ pub struct FrameBuffer<'a> {
     windows: &'a Windows,
     map: &'a Map,
     rect_w: usize,
-    rect_h: usize
+    rect_h: usize,
 }
 
 struct Rectangle {
     x: usize,
     y: usize,
     w: usize,
-    h: usize
+    h: usize,
 }
 
 impl<'a> FrameBuffer<'a> {
@@ -25,7 +25,7 @@ impl<'a> FrameBuffer<'a> {
             windows: w,
             map: m,
             rect_w: w.width / m.width,
-            rect_h: w.height / m.height
+            rect_h: w.height / m.height,
         }
     }
 
@@ -42,7 +42,7 @@ impl<'a> FrameBuffer<'a> {
                 let r = ((255 * j) / self.windows.height) as u8;
                 let g = ((255 * i) / self.windows.width) as u8;
                 let b = 0 as u8;
-                self.buffer[(i + j * self.windows.width) as usize] = Color::new(r, g, b).pack(255);
+                self.buffer[(i + j * self.windows.width) as usize] = Color::new(r, g, b, 255).pack();
             }
         }
     }
@@ -66,14 +66,34 @@ impl<'a> FrameBuffer<'a> {
                 let rect_x = i * self.rect_w;
                 let rect_y = j * self.rect_h;
                 let r = Rectangle { x: rect_x, y: rect_y, w: self.rect_w, h: self.rect_h };
-                self.draw_rectangle(r, Color::new(0, 255, 255).pack(255))
+                self.draw_rectangle(r, Color::new(0, 255, 255, 255).pack())
             }
         }
     }
 
     pub fn draw_player(&mut self, player: &Player) {
-        let r = Rectangle {x: player.x as usize * self.rect_w, y: player.y as usize * self.rect_h, w: 5, h: 5};
-        self.draw_rectangle(r, Color::new(255, 255, 255).pack(255));
+        let r = Rectangle { x: player.x as usize * self.rect_w, y: player.y as usize * self.rect_h, w: 5, h: 5 };
+        self.draw_rectangle(r, Color::new(255, 255, 255, 255).pack());
+        self.draw_field_of_view(player);
+    }
+
+    fn draw_field_of_view(&mut self, player: &Player) {
+        let mut t = 0f32;
+        while t < 20f32
+        {
+            let cx = player.x + t * player.a.cos();
+            let cy = player.y + t * player.a.sin();
+            let index = cx as usize + cy as usize * self.map.width;
+            if char::from(self.map[index]) != ' ' {
+                break;
+            }
+
+            let pix_x = cx * self.rect_w as f32;
+            let pix_y = cy * self.rect_h as f32;
+            let index = pix_x as usize + pix_y as usize * self.windows.width;
+            self.buffer[index] = Color::new(255, 255, 255, 255).pack();
+            t += 0.1f32;
+        }
     }
 }
 

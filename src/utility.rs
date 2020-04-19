@@ -6,11 +6,11 @@ pub struct Color {
 }
 
 impl Color {
-    pub fn new(r: u8, g: u8, b: u8) -> Self {
-        Color { r, g, b, a: 255 }
+    pub fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
+        Color { r, g, b, a}
     }
-    pub fn pack(&self, a: u8) -> u32 {
-        let mut c = (a as u32) << 24;
+    pub fn pack(&self) -> u32 {
+        let mut c = (self.a as u32) << 24;
         c += (self.b as u32) << 16;
         c += (self.g as u32) << 8;
         c += self.r as u32;
