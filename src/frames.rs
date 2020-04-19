@@ -3,9 +3,12 @@ use crate::utility::Color;
 use std::ops::Index;
 use crate::player::Player;
 
-pub struct FrameBuffer {
+pub struct FrameBuffer<'a> {
     pub buffer: Vec<u32>,
-    windows: Windows,
+    windows: &'a Windows,
+    map: &'a Map,
+    rect_w: usize,
+    rect_h: usize
 }
 
 struct Rectangle {
@@ -15,9 +18,15 @@ struct Rectangle {
     h: usize
 }
 
-impl FrameBuffer {
-    pub fn new(w: Windows) -> Self {
-        FrameBuffer { buffer: vec![255; (w.size()) as usize], windows: w }
+impl<'a> FrameBuffer<'a> {
+    pub fn new(w: &'a Windows, m: &'a Map) -> Self {
+        FrameBuffer {
+            buffer: vec![255; (w.size()) as usize],
+            windows: w,
+            map: m,
+            rect_w: w.width / m.width,
+            rect_h: w.height / m.height
+        }
     }
 
     #[allow(dead_code)]
@@ -48,31 +57,27 @@ impl FrameBuffer {
         }
     }
 
-    pub fn draw_map(&mut self, map: &Map) {
-        let rect_w = self.windows.width / map.width;
-        let rect_h = self.windows.height / map.height;
-        for j in 0..map.height {
-            for i in 0..map.width {
-                if char::from(map[i + j * map.width]) == ' ' {
+    pub fn draw_map(&mut self) {
+        for j in 0..self.map.height {
+            for i in 0..self.map.width {
+                if char::from(self.map[i + j * self.map.width]) == ' ' {
                     continue;
                 }
-                let rect_x = i * rect_w;
-                let rect_y = j * rect_h;
-                let r = Rectangle { x: rect_x, y: rect_y, w: rect_w, h: rect_h };
+                let rect_x = i * self.rect_w;
+                let rect_y = j * self.rect_h;
+                let r = Rectangle { x: rect_x, y: rect_y, w: self.rect_w, h: self.rect_h };
                 self.draw_rectangle(r, Color::new(0, 255, 255).pack(255))
             }
         }
     }
 
-    pub fn draw_player(&mut self, map: &Map, player: &Player) {
-        let rect_w = self.windows.width / map.width;
-        let rect_h = self.windows.height / map.height;
-        let r = Rectangle {x: player.x as usize * rect_w, y: player.y as usize *rect_h, w: 5, h: 5};
+    pub fn draw_player(&mut self, player: &Player) {
+        let r = Rectangle {x: player.x as usize * self.rect_w, y: player.y as usize * self.rect_h, w: 5, h: 5};
         self.draw_rectangle(r, Color::new(255, 255, 255).pack(255));
     }
 }
 
-impl Index<usize> for FrameBuffer {
+impl<'a> Index<usize> for FrameBuffer<'a> {
     type Output = u32;
     fn index(&self, i: usize) -> &u32 {
         &self.buffer[i]

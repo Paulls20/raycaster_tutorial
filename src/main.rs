@@ -11,15 +11,14 @@ use crate::player::Player;
 
 fn main() {
     let w: Windows = Default::default();
-
-    let mut fb = FrameBuffer::new(w.clone());
-    fb.fill_gradient();
-
     let m: Map = Default::default();
-    fb.draw_map(&m);
+
+    let mut fb = FrameBuffer::new(&w, &m);
+    fb.fill_gradient();
+    fb.draw_map();
 
     let p = Player::new(3.456, 2.345);
-    fb.draw_player(&m, &p);
+    fb.draw_player(&p);
 
     PPMImage::draw_image("test.ppm", &fb, &w);
 }
