@@ -48,8 +48,8 @@ impl<'a> FrameBuffer<'a> {
     }
 
     fn draw_rectangle(&mut self, rectangle: Rectangle, color: u32) {
-        for j in 0..rectangle.w {
-            for i in 0..rectangle.h {
+        for i in 0..rectangle.w {
+            for j in 0..rectangle.h {
                 let cx = rectangle.x + i;
                 let cy = rectangle.y + j;
                 self.buffer[cx + cy * self.windows.width] = color
@@ -72,15 +72,16 @@ impl<'a> FrameBuffer<'a> {
     }
 
     pub fn draw_player(&mut self, player: &Player) {
-        let r = Rectangle { x: player.x as usize * self.rect_w, y: player.y as usize * self.rect_h, w: 5, h: 5 };
+        let x_pos = player.x * self.rect_w as f32;
+        let y_pos = player.y * self.rect_h as f32;
+        let r = Rectangle { x: x_pos as usize, y: y_pos as usize, w: 5, h: 5 };
         self.draw_rectangle(r, Color::new(255, 255, 255, 255).pack());
         self.draw_field_of_view(player);
     }
 
     fn draw_field_of_view(&mut self, player: &Player) {
         let mut t = 0f32;
-        while t < 20f32
-        {
+        while t < 20f32 {
             let cx = player.x + t * player.a.cos();
             let cy = player.y + t * player.a.sin();
             let index = cx as usize + cy as usize * self.map.width;
@@ -92,7 +93,7 @@ impl<'a> FrameBuffer<'a> {
             let pix_y = cy * self.rect_h as f32;
             let index = pix_x as usize + pix_y as usize * self.windows.width;
             self.buffer[index] = Color::new(255, 255, 255, 255).pack();
-            t += 0.1f32;
+            t += 0.05f32;
         }
     }
 }
