@@ -80,20 +80,26 @@ impl<'a> FrameBuffer<'a> {
     }
 
     fn draw_field_of_view(&mut self, player: &Player) {
-        let mut t = 0f32;
-        while t < 20f32 {
-            let cx = player.x + t * player.a.cos();
-            let cy = player.y + t * player.a.sin();
-            let index = cx as usize + cy as usize * self.map.width;
-            if char::from(self.map[index]) != ' ' {
-                break;
-            }
+        const FOV: f32 = std::f32::consts::PI / 3f32;
+        for i in 0..self.windows.width {
+            let angle1 = player.a - FOV / 2f32;
+            let angle = angle1 + FOV * i as f32 / self.windows.width as f32;
+            let mut t = 0f32;
+            while t < 20f32 {
+                let cx = player.x + t * angle.cos();
+                let cy = player.y + t * angle.sin();
+                let index = cx as usize + cy as usize * self.map.width;
+                if char::from(self.map[index]) != ' ' {
+                    break;
+                }
 
-            let pix_x = cx * self.rect_w as f32;
-            let pix_y = cy * self.rect_h as f32;
-            let index = pix_x as usize + pix_y as usize * self.windows.width;
-            self.buffer[index] = Color::new(255, 255, 255, 255).pack();
-            t += 0.05f32;
+                let pix_x = cx * self.rect_w as f32;
+                let pix_y = cy * self.rect_h as f32;
+                let index = pix_x as usize + pix_y as usize * self.windows.width;
+                println!("Index = {}", index);
+                self.buffer[index] = Color::new(255, 255, 255, 255).pack();
+                t += 0.05f32;
+            }
         }
     }
 }
