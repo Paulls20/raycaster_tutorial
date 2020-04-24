@@ -8,7 +8,7 @@ pub struct Windows {
 
 impl Default for Windows {
     fn default() -> Self {
-        Windows { width: 512, height: 512 }
+        Windows { width: 1024, height: 512 }
     }
 }
 

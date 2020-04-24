@@ -14,7 +14,6 @@ fn main() {
     let m: Map = Default::default();
 
     let mut fb = FrameBuffer::new(&w, &m);
-    fb.fill_gradient();
     fb.draw_map();
 
     let p = Player::new(3.456, 2.345, 1.523);
