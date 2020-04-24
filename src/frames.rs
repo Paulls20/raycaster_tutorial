@@ -1,5 +1,5 @@
 use crate::settings::{Windows, Map};
-use crate::utility::Color;
+use crate::utility::{Color, Position};
 use std::ops::Index;
 use crate::player::Player;
 
@@ -12,8 +12,7 @@ pub struct FrameBuffer<'a> {
 }
 
 struct Rectangle {
-    x: usize,
-    y: usize,
+    pos: Position,
     w: usize,
     h: usize,
 }
@@ -51,8 +50,8 @@ impl<'a> FrameBuffer<'a> {
     fn draw_rectangle(&mut self, rectangle: Rectangle, color: u32) {
         for i in 0..rectangle.w {
             for j in 0..rectangle.h {
-                let cx = rectangle.x + i;
-                let cy = rectangle.y + j;
+                let cx = rectangle.pos.x + i;
+                let cy = rectangle.pos.y + j;
                 if cx >= self.windows.width || cy >= self.windows.height {
                     continue;
                 }
@@ -69,7 +68,11 @@ impl<'a> FrameBuffer<'a> {
                 }
                 let rect_x = i * self.rect_w;
                 let rect_y = j * self.rect_h;
-                let r = Rectangle { x: rect_x, y: rect_y, w: self.rect_w, h: self.rect_h };
+                let r = Rectangle {
+                    pos: Position { x: rect_x, y: rect_y },
+                    w: self.rect_w,
+                    h: self.rect_h,
+                };
                 self.draw_rectangle(r, Color::new(0, 255, 255, 255).pack())
             }
         }
@@ -97,8 +100,7 @@ impl<'a> FrameBuffer<'a> {
                 if char::from(self.map[index]) != ' ' {
                     let col_height = self.windows.height as f32 / t;
                     let r = Rectangle {
-                        x: self.windows.width / 2 + i,
-                        y: self.windows.height / 2 - col_height as usize / 2,
+                        pos: Position { x: self.windows.width / 2 + i, y: self.windows.height / 2 - col_height as usize / 2 },
                         w: 1,
                         h: col_height as usize,
                     };
