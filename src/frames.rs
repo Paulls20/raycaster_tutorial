@@ -96,7 +96,6 @@ impl<'a> FrameBuffer<'a> {
                 let pix_x = cx * self.rect_w as f32;
                 let pix_y = cy * self.rect_h as f32;
                 let index = pix_x as usize + pix_y as usize * self.windows.width;
-                println!("Index = {}", index);
                 self.buffer[index] = Color::new(255, 255, 255, 255).pack();
                 t += 0.05f32;
             }
