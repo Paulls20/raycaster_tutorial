@@ -1,3 +1,7 @@
+extern crate rand;
+
+use rand::Rng;
+
 pub struct Position {
     pub x: usize,
     pub y: usize,
@@ -12,7 +16,7 @@ pub struct Color {
 
 impl Color {
     pub fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
-        Color { r, g, b, a}
+        Color { r, g, b, a }
     }
     pub fn pack(&self) -> u32 {
         let mut c = (self.a as u32) << 24;
@@ -29,5 +33,17 @@ impl Color {
             b: ((color >> 16) & 255) as u8,
             a: ((color >> 24) & 255) as u8,
         }
+    }
+
+    pub fn generate_random(ncolors: usize) -> Vec<u32> {
+        let mut colors = Vec::with_capacity(ncolors);
+        let mut rng = rand::thread_rng();
+        for _ in 0..ncolors {
+            colors.push(Color::new(rng.gen_range(0, 255),
+                                   rng.gen_range(0, 255),
+                                   rng.gen_range(0, 255),
+                                   255).pack());
+        }
+        colors
     }
 }

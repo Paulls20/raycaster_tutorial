@@ -9,6 +9,7 @@ pub struct FrameBuffer<'a> {
     map: &'a Map,
     rect_w: usize,
     rect_h: usize,
+    colors: &'a Vec<u32>,
 }
 
 struct Rectangle {
@@ -18,13 +19,14 @@ struct Rectangle {
 }
 
 impl<'a> FrameBuffer<'a> {
-    pub fn new(w: &'a Windows, m: &'a Map) -> Self {
+    pub fn new(w: &'a Windows, m: &'a Map, c: &'a Vec<u32>) -> Self {
         FrameBuffer {
             buffer: vec![Color::new(255, 255, 255, 255).pack(); (w.size()) as usize],
             windows: w,
             map: m,
             rect_w: w.width / (m.width * 2),
             rect_h: w.height / m.height,
+            colors: c,
         }
     }
 
@@ -73,7 +75,8 @@ impl<'a> FrameBuffer<'a> {
                     w: self.rect_w,
                     h: self.rect_h,
                 };
-                self.draw_rectangle(r, Color::new(0, 255, 255, 255).pack())
+                let icolor = char::from(self.map[i + j * self.map.width]) as usize - '0' as usize;
+                self.draw_rectangle(r, self.colors[icolor]);
             }
         }
     }
@@ -104,10 +107,11 @@ impl<'a> FrameBuffer<'a> {
                         w: 1,
                         h: col_height as usize,
                     };
-                    self.draw_rectangle(r, Color::new(0, 255, 255, 255).pack());
+                    let icolor = char::from(self.map[cx as usize + cy as usize * self.map.width]) as usize - '0' as usize;
+                    self.draw_rectangle(r, self.colors[icolor]);
                     break;
                 }
-                t += 0.05f32;
+                t += 0.01f32;
             }
         }
     }
