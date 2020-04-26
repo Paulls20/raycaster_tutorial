@@ -4,6 +4,8 @@ mod image;
 mod utility;
 mod player;
 
+mod texture;
+
 use crate::settings::{Windows, Map};
 use crate::frames::FrameBuffer;
 use crate::image::{PPMImage, Image};
@@ -15,15 +17,13 @@ fn run() {
     let m: Map = Default::default();
     let colors = Color::generate_random(10);
 
-    let mut angle = 0f32;
-    for i in 350..360 {
-        let mut fb = FrameBuffer::new(&w, &m, &colors);
-        fb.draw_map();
-        angle += 2f32 * std::f32::consts::PI / 360f32;
-        let p = Player::new(3.456, 2.345, angle);
-        fb.draw_player(&p);
-        PPMImage::draw_image(format!("{}_frame.ppm", i).as_str(), &fb, &w);
-    }
+    let mut fb = FrameBuffer::new(&w, &m, &colors);
+    fb.draw_map();
+    fb.draw_texture();
+
+    let p = Player::new(3.456, 2.345, 1.523);
+    fb.draw_player(&p);
+    PPMImage::draw_image(format!("frame.ppm").as_str(), &fb, &w);
 }
 
 fn main() {

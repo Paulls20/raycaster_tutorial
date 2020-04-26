@@ -2,6 +2,7 @@ use crate::settings::{Windows, Map};
 use crate::utility::{Color, Position};
 use std::ops::Index;
 use crate::player::Player;
+use crate::texture;
 
 pub struct FrameBuffer<'a> {
     pub buffer: Vec<u32>,
@@ -77,6 +78,18 @@ impl<'a> FrameBuffer<'a> {
                 };
                 let icolor = char::from(self.map[i + j * self.map.width]) as usize - '0' as usize;
                 self.draw_rectangle(r, self.colors[icolor]);
+            }
+        }
+    }
+
+    pub fn draw_texture(&mut self) {
+        let texture_file = "/home/paul/Workspace/tiny_raycaster/resource/walltext.png";
+        let texid = 4;
+        let texture = texture::load_texture(texture_file).unwrap();
+        for i in 0..texture.size {
+            for j in 0..texture.size {
+                let index = i+texid * texture.size + j * texture.size * texture.cnt;
+                self.buffer[i+j*self.windows.width] = texture.wall[index];
             }
         }
     }
