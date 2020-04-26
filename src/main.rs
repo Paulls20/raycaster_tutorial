@@ -13,8 +13,9 @@ use crate::utility::Color;
 fn run() {
     let w: Windows = Default::default();
     let m: Map = Default::default();
-    let mut angle = 0f32;
     let colors = Color::generate_random(10);
+
+    let mut angle = 0f32;
     for i in 350..360 {
         let mut fb = FrameBuffer::new(&w, &m, &colors);
         fb.draw_map();

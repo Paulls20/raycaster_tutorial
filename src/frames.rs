@@ -101,7 +101,7 @@ impl<'a> FrameBuffer<'a> {
 
                 let index = cx as usize + cy as usize * self.map.width;
                 if char::from(self.map[index]) != ' ' {
-                    let col_height = self.windows.height as f32 / t;
+                    let col_height = self.windows.height as f32 / t * (angle - player.a).cos();
                     let r = Rectangle {
                         pos: Position { x: self.windows.width / 2 + i, y: self.windows.height / 2 - col_height as usize / 2 },
                         w: 1,
