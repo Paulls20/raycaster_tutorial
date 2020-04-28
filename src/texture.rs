@@ -1,5 +1,6 @@
 use stb_image::image::LoadResult;
 use crate::utility::Color;
+use std::ops::Index;
 
 pub struct Texture {
     pub wall: Vec<u32>,
@@ -38,13 +39,20 @@ pub fn load_texture(filename: &str) -> Result<Texture, &'static str> {
     }
 }
 
+impl Index<usize> for Texture {
+    type Output = u32;
+    fn index(&self, i: usize) -> &u32 {
+        &self.wall[i]
+    }
+}
+
 #[cfg(test)]
 mod test {
-    use crate::texture::{load_texture};
+    use crate::texture::load_texture;
 
     #[test]
     fn test_texture() {
-       let texture = load_texture("/home/paul/Workspace/tiny_raycaster/resource/walltext.png").unwrap();
+        let texture = load_texture("/home/paul/Workspace/tiny_raycaster/resource/walltext.png").unwrap();
         assert_eq!(texture.size, 64)
     }
 }

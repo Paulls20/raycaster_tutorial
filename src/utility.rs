@@ -35,6 +35,7 @@ impl Color {
         }
     }
 
+    #[allow(dead_code)]
     pub fn generate_random(ncolors: usize) -> Vec<u32> {
         let mut colors = Vec::with_capacity(ncolors);
         let mut rng = rand::thread_rng();

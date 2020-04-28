@@ -3,6 +3,7 @@ use crate::utility::{Color, Position};
 use std::ops::Index;
 use crate::player::Player;
 use crate::texture;
+use crate::texture::{Texture};
 
 pub struct FrameBuffer<'a> {
     pub buffer: Vec<u32>,
@@ -10,7 +11,7 @@ pub struct FrameBuffer<'a> {
     map: &'a Map,
     rect_w: usize,
     rect_h: usize,
-    colors: &'a Vec<u32>,
+    texture: Texture,
 }
 
 struct Rectangle {
@@ -20,14 +21,14 @@ struct Rectangle {
 }
 
 impl<'a> FrameBuffer<'a> {
-    pub fn new(w: &'a Windows, m: &'a Map, c: &'a Vec<u32>) -> Self {
+    pub fn new(w: &'a Windows, m: &'a Map) -> Self {
         FrameBuffer {
             buffer: vec![Color::new(255, 255, 255, 255).pack(); (w.size()) as usize],
             windows: w,
             map: m,
             rect_w: w.width / (m.width * 2),
             rect_h: w.height / m.height,
-            colors: c,
+            texture: FrameBuffer::load_texture(),
         }
     }
 
@@ -76,22 +77,16 @@ impl<'a> FrameBuffer<'a> {
                     w: self.rect_w,
                     h: self.rect_h,
                 };
-                let icolor = char::from(self.map[i + j * self.map.width]) as usize - '0' as usize;
-                self.draw_rectangle(r, self.colors[icolor]);
+
+                let text_id = char::from(self.map[i + j * self.map.width]) as usize - '0' as usize;
+                self.draw_rectangle(r, self.texture[text_id * self.texture.size]);
             }
         }
     }
 
-    pub fn draw_texture(&mut self) {
+    fn load_texture() -> Texture {
         let texture_file = "/home/paul/Workspace/tiny_raycaster/resource/walltext.png";
-        let texid = 4;
-        let texture = texture::load_texture(texture_file).unwrap();
-        for i in 0..texture.size {
-            for j in 0..texture.size {
-                let index = i+texid * texture.size + j * texture.size * texture.cnt;
-                self.buffer[i+j*self.windows.width] = texture.wall[index];
-            }
-        }
+        return texture::load_texture(texture_file).unwrap();
     }
 
     pub fn draw_player(&mut self, player: &Player) {
@@ -113,15 +108,17 @@ impl<'a> FrameBuffer<'a> {
                 self.buffer[index] = Color::new(160, 160, 160, 255).pack();
 
                 let index = cx as usize + cy as usize * self.map.width;
-                if char::from(self.map[index]) != ' ' {
+                let map_pos = char::from(self.map[index]);
+                if map_pos != ' ' {
                     let col_height = self.windows.height as f32 / t * (angle - player.a).cos();
                     let r = Rectangle {
                         pos: Position { x: self.windows.width / 2 + i, y: self.windows.height / 2 - col_height as usize / 2 },
                         w: 1,
                         h: col_height as usize,
                     };
-                    let icolor = char::from(self.map[cx as usize + cy as usize * self.map.width]) as usize - '0' as usize;
-                    self.draw_rectangle(r, self.colors[icolor]);
+
+                    let text_id = map_pos as usize - '0' as usize;
+                    self.draw_rectangle(r, self.texture[text_id*self.texture.size]);
                     break;
                 }
                 t += 0.01f32;
