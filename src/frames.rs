@@ -3,7 +3,7 @@ use crate::utility::{Color, Position};
 use std::ops::Index;
 use crate::player::Player;
 use crate::texture;
-use crate::texture::{Texture};
+use crate::texture::Texture;
 
 pub struct FrameBuffer<'a> {
     pub buffer: Vec<u32>,
@@ -89,6 +89,19 @@ impl<'a> FrameBuffer<'a> {
         return texture::load_texture(texture_file).unwrap();
     }
 
+    fn texture_column(&self, text_id: usize, text_coord: usize, column_height: usize) -> Vec<u32> {
+        let img_w = self.texture.size * self.texture.cnt;
+        //let img_h = self.texture.size;
+
+        let mut columns = vec![0u32; column_height];
+        for y in 0..column_height {
+            let pix_x = text_id * self.texture.size + text_coord;
+            let pix_y = (y * self.texture.size) / column_height;
+            columns[y] = self.buffer[pix_x + pix_y * img_w];
+        }
+        columns
+    }
+
     pub fn draw_player(&mut self, player: &Player) {
         self.draw_field_of_view(player);
     }
@@ -102,8 +115,8 @@ impl<'a> FrameBuffer<'a> {
                 let cx = player.x + t * angle.cos();
                 let cy = player.y + t * angle.sin();
 
-                let pix_x = cx * self.rect_w as f32;
-                let pix_y = cy * self.rect_h as f32;
+                let mut pix_x = cx * self.rect_w as f32;
+                let mut pix_y = cy * self.rect_h as f32;
                 let index = pix_x as usize + pix_y as usize * self.windows.width;
                 self.buffer[index] = Color::new(160, 160, 160, 255).pack();
 
@@ -118,7 +131,26 @@ impl<'a> FrameBuffer<'a> {
                     };
 
                     let text_id = map_pos as usize - '0' as usize;
-                    self.draw_rectangle(r, self.texture[text_id*self.texture.size]);
+                    //self.draw_rectangle(r, self.texture[text_id * self.texture.size]);
+                    let hitx = cx - (cx + 0.5).floor();
+                    let hity = cy - (cy + 0.5).floor();
+                    let mut x_text_coord = hitx * self.texture.size as f32;
+                    if hity.abs() > hitx.abs() {
+                        x_text_coord = hity * self.texture.size as f32;
+                    }
+                    if x_text_coord < 0f32 {
+                        x_text_coord += self.texture.size as f32;
+                    }
+
+                    let columns = self.texture_column(text_id, x_text_coord as usize, col_height as usize);
+                    pix_x = (self.windows.width / 2) as f32 + i as f32;
+                    for j in 0..col_height as usize {
+                        pix_y = j as f32 + (self.windows.height / 2) as f32 - col_height / 2f32;
+                        if pix_y < 0f32 || pix_y >= self.windows.height as f32 {
+                            continue
+                        }
+                        self.buffer[pix_x as usize + pix_y as usize * self.windows.width] = columns[j];
+                    }
                     break;
                 }
                 t += 0.01f32;
