@@ -97,7 +97,7 @@ impl<'a> FrameBuffer<'a> {
         for y in 0..column_height {
             let pix_x = text_id * self.texture.size + text_coord;
             let pix_y = (y * self.texture.size) / column_height;
-            columns[y] = self.buffer[pix_x + pix_y * img_w];
+            columns[y] = self.texture[pix_x + pix_y * img_w];
         }
         columns
     }
